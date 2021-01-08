@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#define MB 0xFFFFF
 /* This implementation assumes (as does the corresponding implementation
    of _dl_unmap_segments, in dl-unmap-segments.h) that shared objects
    are always laid out with all segments contiguous (or with gaps
@@ -60,35 +61,42 @@ _dl_map_segments (struct link_map *l, int fd,
 
 
       // lookup table for specific address of the lib
-      //get lib name(full file path), l->l_name
       
+      //base stands for file path's base file name
       char *base;
       base = basename(l->l_name);
+      /*
       if(strcmp(base,"libc-2.30.so") == 0){
-        //do something
-        mappref =  0x7f419ea9c000;
+        //mappref =  0x7f419ea9c000;
+        mappref =  0x7f0000000000;
       }else if(strcmp(base,"libc.so") == 0){
-        //do something
-        mappref =  0x7f419ea9c000;
-      }else if(strcmp(base,"libc.so.6") == 0){
+        //mappref =  0x7f419ea9c000;
+        mappref =  0x7f0000000000;
+      }else 
+      */
+      if(strcmp(base,"libc.so.6") == 0){
         //correct
-        mappref =  0x7f419ea9c000;
+        //mappref =  0x7f419ea9c000;
+        mappref =  0x7f0000000000;
+      }else if(strcmp(base,"libpthread.so.0") == 0){
+        mappref =  0x7f0000600000;
       }
 
 
       /* Remember which part of the address space this object uses.  */
-      /*
+      
       l->l_map_start = (ElfW(Addr)) __mmap ((void *) mappref, maplength,
                                             c->prot,
                                             MAP_COPY|MAP_FILE,
                                             fd, c->mapoff);
-                                            */
-      //add MAP_FIXED                                            
+                                            
+      //add MAP_FIXED 
+      /*                                           
       l->l_map_start = (ElfW(Addr)) __mmap ((void *) mappref, maplength,
                                             c->prot,
                                             MAP_COPY|MAP_FILE|MAP_FIXED,
                                             fd, c->mapoff);
-
+      */
       if (__glibc_unlikely ((void *) l->l_map_start == MAP_FAILED))
         return DL_MAP_SEGMENTS_ERROR_MAP_SEGMENT;
 
